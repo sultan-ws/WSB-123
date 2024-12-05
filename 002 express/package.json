@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "002-express": "file:",
     "express": "^4.21.1"
   }
 }
