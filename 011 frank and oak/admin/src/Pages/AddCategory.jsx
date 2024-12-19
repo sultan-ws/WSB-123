@@ -70,8 +70,8 @@ const AddCategory = () => {
             <span>Hide</span>
           </div>
           <div className="w-full my-[20px] ">
-            <button className="bg-[#5351c9] rounded-md text-white w-[100px] h-[35px]">
-              Add Size
+            <button className="bg-[#5351c9] px-2 rounded-md text-white h-[35px]">
+              Add Category
             </button> 
           </div>
         </form>

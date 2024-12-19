@@ -108,7 +108,7 @@ app.delete('/delete-data/:id', async ( req, res ) => {
     const response = await Product.deleteOne({ _id: new ObjectId(req.params.id)});
     
     res.status(200).json({ message: 'success', data: response });
-})
+});
 
 app.listen(5000, ()=>{
     console.log('server is running on port 5000');
