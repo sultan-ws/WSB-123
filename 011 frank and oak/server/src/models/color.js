@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
-const categorySchema = new mongoose.Schema({
+const colorSchema = new mongoose.Schema({
     name:{
         type:String,
         unique:true
     },
-    description:String,
+    code:String,
     status:{
         type: Boolean,
         default:true
@@ -21,14 +21,14 @@ const categorySchema = new mongoose.Schema({
     }
 });
 
-categorySchema.pre('save', function(){
+colorSchema.pre('save', function(){
     this.createdAt = Date.now;
 });
 
-categorySchema.pre('insertOne', function(){
+colorSchema.pre('insertOne', function(){
     this.createdAt = Date.now;
 });
 
-const ParentCategory = mongoose.model('parent_categories', categorySchema);
+const Color = mongoose.model('colors', colorSchema);
 
-module.exports = ParentCategory;
+module.exports = Color;
