@@ -3,6 +3,21 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 const UpdateCategory = () => {
+  const {_id} = useParams();
+  const [category, setCategory] = useState({});
+
+  const readCategory = ()=>{
+     axios.get(`${process.env.REACT_APP_API_URL}parent-category/read-category/${_id}`)
+     .then((response)=>{
+      console.log(response.data);
+      setCategory(response.data.data[0]);
+     })
+     .catch((error)=>{
+      console.log(error);
+      })
+  };
+
+  useEffect(()=>{readCategory()},[_id]);
  
   return (
     <div className="w-[90%] mx-auto my-[150px] bg-white border rounded-[10px]">
@@ -18,10 +33,10 @@ const UpdateCategory = () => {
             <input
               type="text"
               name="name"
-              
+              value={category.name}
               id="categoryName"
               placeholder="Category Name"
-              
+              onChange={(e)=> setCategory({...category, name: e.target.value})}
               className="input border p-1 w-full rounded-[5px] my-[10px]"
             />
           </div>
@@ -44,7 +59,8 @@ const UpdateCategory = () => {
               type="file"
               name="description"
               id="categoryDesc"
-             
+              value={category.description}
+              onChange={(e)=> setCategory({...category, description: e.target.value})}
               className="input border w-full rounded-[5px] my-[10px]"
             />
           </div>
@@ -74,7 +90,7 @@ const UpdateCategory = () => {
             <span>Hide</span>
           </div> */}
           <div className="w-full my-[20px] ">
-            <button className="bg-[#5351c9] rounded-md text-white w-[100px] h-[35px]">
+            <button className="bg-[#5351c9] rounded-md text-white px-2 h-[35px]">
               Update Category
             </button>
           </div>
