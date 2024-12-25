@@ -64,5 +64,12 @@ input::-webkit-outer-spin-button {
   display: none;
   margin: 0;
 }
+.ReactModal__Overlay{
+  z-index: 99999;
+}
+
+.swal2-container{
+  z-index: 999999;
+}
 
 @tailwind utilities;
