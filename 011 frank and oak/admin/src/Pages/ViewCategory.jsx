@@ -17,7 +17,7 @@ const customStyles = {
     bottom: 'auto',
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
-    width:'800px'
+    width: '800px'
   },
 };
 
@@ -32,6 +32,8 @@ const ViewCategory = () => {
   const [checkedCategories, setCheckedCategories] = useState([]);
   const [ifAllChecked, setIfALlChecked] = useState(false);
   const [modalIsOpen, setIsOpen] = useState(false);
+  const [binChecked, setBinChecked] = useState([]);
+  const [ifAllBin, setAllBin] = useState(false);
 
   const readCategories = () => {
     axios.get(`http://localhost:4200/api/admin-panel/parent-category/read-categories`)
@@ -44,7 +46,7 @@ const ViewCategory = () => {
       });
   };
 
-  const readDeletedCategories = ()=>{
+  const readDeletedCategories = () => {
     axios.get(`http://localhost:4200/api/admin-panel/parent-category/deleted-categories`)
       .then((response) => {
         console.log(response.data);
@@ -55,10 +57,10 @@ const ViewCategory = () => {
       });
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     readCategories();
     readDeletedCategories();
-   }, []);
+  }, []);
 
   const handleUpdateStatus = (e) => {
     const status = (e.target.textContent !== 'Active');
@@ -166,7 +168,7 @@ const ViewCategory = () => {
     });
   }
 
-  const handleRestoreCategory = (id)=>{
+  const handleRestoreCategory = (id) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You want to restore this category!",
@@ -177,11 +179,75 @@ const ViewCategory = () => {
       confirmButtonText: "Yes, Restore it!"
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "Restored!",
-          text: "Your category has been restored.",
-          icon: "success"
-        });
+
+        axios.put(`${process.env.REACT_APP_API_URL}parent-category/restore-category/${id}`)
+          .then((response) => {
+            console.log(response.data);
+            readCategories();
+            readDeletedCategories();
+            setAllBin(false);
+            Swal.fire({
+              title: "Restored!",
+              text: "Your category has been restored.",
+              icon: "success"
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+
+      }
+    });
+  }
+
+  const handleCheckBinCategory = (e) => {
+    if (e.target.checked) return setBinChecked([...binChecked, e.target.value]);
+    return setBinChecked(binChecked.filter(item => item !== e.target.value));
+  };
+
+  const handleAllBinChecked = (e) => {
+    if (e.target.checked) {
+      setAllBin(true);
+      setBinChecked(deletedcategories.map(category => category._id));
+      return;
+    }
+
+    setAllBin(false);
+    setBinChecked([]);
+
+  }
+
+  useEffect(()=>{
+    setAllBin(deletedcategories.length === binChecked.length && deletedcategories.length !== 0);
+  },[deletedcategories, binChecked])
+
+  const handleRestoreChackedCategories = ()=>{
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You want to restore this category!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Restore it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+
+        axios.put(`${process.env.REACT_APP_API_URL}parent-category/restore-categories`, { categories: binChecked})
+          .then((response) => {
+            console.log(response.data);
+            readCategories();
+            readDeletedCategories();
+            Swal.fire({
+              title: "Restored!",
+              text: "Your category has been restored.",
+              icon: "success"
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+
       }
     });
   }
@@ -194,7 +260,7 @@ const ViewCategory = () => {
           View Category
         </span>
         <span className="h-100 w-[100px] grid place-items-center">
-          <IoTrashBin className="text-[red] cursor-pointer" onClick={()=>setIsOpen(true)} />
+          <IoTrashBin className="text-[red] cursor-pointer" onClick={() => setIsOpen(true)} />
         </span>
       </span>
 
@@ -289,88 +355,99 @@ const ViewCategory = () => {
 
 
           </tbody>
-         
+
         </table>
 
         <Modal
-            isOpen={modalIsOpen}
-            // onAfterOpen={afterOpenModal}
-            onRequestClose={()=> setIsOpen(false)}
-            style={customStyles}
-            contentLabel="Example Modal"
-          >
-             <table className="w-full">
-          <thead>
-            <tr className="text-left border-b">
-              <th>
-                <button
-                  className="bg-red-400 rounded-sm px-2 py-1"
-                >Delete</button>
-                <input
-                  type="checkbox"
-                  name="deleteAll"
-                  id="deleteAllCat"
-                  className="accent-[#5351c9]"
-                />
-              </th>
-              <th>Sno</th>
-              <th>Category Name</th>
-              <th>Description</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <Tooltip id="my-tooltip" />
-
-            {
-              deletedcategories.map((category, index) => (
-                <tr key={index} className="border-b">
-                  <td>
-                    <input
-                      type="checkbox"
-                      name="delete"
-                      id="delete1"
-                      className="accent-[#5351c9] cursor-pointer"
-                    />
-                  </td>
-                  <td>{index + 1}</td>
-                  <td>{category.name}</td>
-                  <td className="w-[200px] flex-wrap p-1">
-                    {category.description}
-                    <span
-                      onClick={() => setShow1(!show1)}
-                      className={
-                        show1 === true ? "hidden" : "font-bold cursor-pointer"
-                      }
-                    >
-                      ...Read
-                    </span>
-                    {show1 === false ? (
-                      " "
-                    ) : (
-                      <span>
-                        Deserunt nam est delectus itaque sint harum architecto.
-                      </span>
-                    )}
-                  </td>
-                  <td>
+          isOpen={modalIsOpen}
+          // onAfterOpen={afterOpenModal}
+          onRequestClose={() => setIsOpen(false)}
+          style={customStyles}
+          contentLabel="Example Modal"
+        >
+          <table className="w-full">
+            <thead>
+              <tr className="text-left border-b">
+                <th>
+                  <input
+                    type="checkbox"
+                    name="deleteAll"
+                    id="deleteAllCat"
+                    className="accent-[#5351c9]"
+                    checked={ifAllBin}
+                    onClick={handleAllBinChecked}
+                  />
+                  <button
+                    className="rounded-sm px-2 py-1"
+                  >
                     <MdDelete className="my-[5px] text-red-500 cursor-pointer inline" />{" "}
                     |{" "}
 
-                    <MdRestore className="my-[5px] text-green-500 cursor-pointer inline" onClick={()=>{handleRestoreCategory(category._id)}} />
+                    <MdRestore className="my-[5px] text-green-500 cursor-pointer inline" onClick={handleRestoreChackedCategories} />
+                  </button>
 
-                  </td>
-                </tr>
-              ))
-            }
+                </th>
+                <th>Sno</th>
+                <th>Category Name</th>
+                <th>Description</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <Tooltip id="my-tooltip" />
+
+              {
+                deletedcategories.map((category, index) => (
+                  <tr key={index} className="border-b">
+                    <td>
+                      <input
+                        type="checkbox"
+                        name="delete"
+                        id="delete1"
+                        className="accent-[#5351c9] cursor-pointer"
+                        value={category._id}
+                        checked={binChecked.includes(category._id)}
+                        onClick={handleCheckBinCategory}
+                      />
+                    </td>
+                    <td>{index + 1}</td>
+                    <td>{category.name}</td>
+                    <td className="w-[200px] flex-wrap p-1">
+                      {category.description}
+                      <span
+                        onClick={() => setShow1(!show1)}
+                        className={
+                          show1 === true ? "hidden" : "font-bold cursor-pointer"
+                        }
+                      >
+                        ...Read
+                      </span>
+                      {show1 === false ? (
+                        " "
+                      ) : (
+                        <span>
+                          Deserunt nam est delectus itaque sint harum architecto.
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      <MdDelete className="my-[5px] text-red-500 cursor-pointer inline" />{" "}
+                      |{" "}
+
+                      <MdRestore className="my-[5px] text-green-500 cursor-pointer inline" onClick={() => { handleRestoreCategory(category._id) }} />
+
+                    </td>
+                  </tr>
+                ))
+              }
 
 
 
 
-          </tbody>
-         
-        </table>
-          </Modal>
+            </tbody>
+
+          </table>
+        </Modal>
       </div>
     </div>
   );
