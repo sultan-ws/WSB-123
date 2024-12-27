@@ -11,13 +11,19 @@ const {
     updateParentCategory,
     deletedParentCategories,
     restoreParentCategory,
-    restoreParentCategories
+    restoreParentCategories,
+    activeParentCategories
 } = require("./admin-panel/parentCategoryControllers");
 
 // color
 const { 
     createColor
  } = require("./admin-panel/colorControllers");
+
+ // product category
+const { 
+    createProductCategory 
+} = require("./admin-panel/productCategoryControllers");
 
 module.exports = {
     createParentCategory,
@@ -30,5 +36,7 @@ module.exports = {
     updateParentCategory,
     deletedParentCategories,
     restoreParentCategory,
-    restoreParentCategories
+    restoreParentCategories,
+    activeParentCategories,
+    createProductCategory
 };

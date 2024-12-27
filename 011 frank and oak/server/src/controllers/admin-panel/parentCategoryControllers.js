@@ -150,6 +150,17 @@ const restoreParentCategories = async (req, res) => {
     }
 }
 
+const activeParentCategories = async (req, res) => {
+    try{
+        const data = await ParentCategory.find({ status: true, deletedAt: null });
+        res.status(200).json({message:'success', data});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({message: 'internal server error'});
+    }
+}
+
 
 module.exports = {
     createParentCategory,
@@ -161,5 +172,6 @@ module.exports = {
     updateParentCategory,
     deletedParentCategories,
     restoreParentCategory,
-    restoreParentCategories
+    restoreParentCategories,
+    activeParentCategories
 }
