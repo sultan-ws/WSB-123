@@ -13,13 +13,20 @@ import { SlUser } from "react-icons/sl";
 // import { RxGear } from "react-icons/rx";
 // import { MdOutlinePayment } from "react-icons/md";
 import { CiChat1, CiLock } from "react-icons/ci";
-import Cookies from "js-cookie";
 function Header() {
   const nav = useNavigate();
   let { navVisible, setNavVisibility } = useContext(NavToggle);
   let [width, setWidth] = useState(false);
   let [profileDropDown, setProfileDropDown] = useState(false);
 
+  useEffect(()=>{
+    if(!sessionStorage.getItem('admin')) nav('/');
+  },[]);
+
+  const handleLogOut = ()=>{
+    sessionStorage.removeItem('admin');
+    nav('/');
+  }
 
   return (
     <div
@@ -73,7 +80,7 @@ function Header() {
                   <CiLock />{" "}
                 </span>
                 <span>
-                  <button>Lock Account</button>
+                  <button onClick={handleLogOut}>Lock Account</button>
                 </span>
               </li>
           </ul>
