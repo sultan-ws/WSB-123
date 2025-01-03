@@ -11,10 +11,37 @@ import { useNavigate } from "react-router-dom";
 
 
 function Profile() {
+  const nav = useNavigate();
 
   const [show, setShow] = useState(false);
-  
+  const [admin, setAdmin] = useState({data:{}});
+  const [previews, setPreviews] = useState({});
 
+   useEffect(()=>{
+    setAdmin(JSON.parse(sessionStorage.getItem('admin')));
+
+    console.log(JSON.parse(sessionStorage.getItem('admin')));
+    },[]);
+
+    const handlePreview = (e)=>{
+      const { name, files } = e.target;
+
+      setPreviews({...previews, [name]: URL.createObjectURL(files[0])});
+    }
+
+    const updateAdmin = (e)=>{
+      e.preventDefault();
+      axios.put(`${process.env.REACT_APP_API_URL}admin/update-admin`, e.target)
+      .then((response)=>{
+        console.log(response.data);
+
+        sessionStorage.removeItem('admin');
+        nav('/');
+      })
+      .catch((error)=>{
+        console.log(error);
+        });
+    }
   return (
     <div>
       <div className="w-[90%] mx-auto mt-[140px] mb-[20px] bg-white border rounded-[10px]">
@@ -23,14 +50,31 @@ function Profile() {
         </span>
         <div className="w-full grid grid-cols-[2fr_2fr]">
           <div className="p-[10px]">
-            <form >
+            <form method="post" onSubmit={updateAdmin}>
+            <div className="flex flex-col justify-center p-[10px] box-border items-center gap-[10px]">
+            <div className="border border-slate-300 w-[180px] h-[180px] rounded-[50%] object-contain">
+              <img
+                src={ previews.profile || admin.data.profile || '/profile.jpg'}
+                alt="profile img"
+                className="w-full h-full rounded-[50%]"
+              />
+            </div>
+            <span className="block text-center">Profile Image</span>
+            <input
+                  type="file"
+                  onChange={handlePreview}
+                  name="profile"
+                 
+                  className="w-full border rounded-[5px] p-2 input"
+                />
+          </div>
               <div className="w-full ">
                 <span className="block m-[15px_0]">Name</span>
                 <input
                   type="text"
-                 
+                 onChange={(e)=> setAdmin({...admin, name: e.target.value})}
                   name="name"
-                 
+                  value={admin.data.name}
                   className="w-full border h-[35px] rounded-[5px] p-2 input"
                 />
               </div>
@@ -42,7 +86,8 @@ function Profile() {
                   </span>
                   <input
                     type="text"
-                    
+                    onChange={(e)=> setAdmin({...admin, name: e.target.fb})}
+                    value={admin.data.fb}
                   name="fb"
                  
                     className="w-full border h-[35px] rounded-[5px] p-2 input"
@@ -54,7 +99,8 @@ function Profile() {
                   </span>
                   <input
                     type="text"
-                   
+                    onChange={(e)=> setAdmin({...admin, name: e.target.instagram})}
+                    value={admin.data.instagram}
                   name="instagram"
                  
                     className="w-full border h-[35px] rounded-[5px] p-2 input"
@@ -66,7 +112,8 @@ function Profile() {
                   </span>
                   <input
                     type="text"
-                   
+                    onChange={(e)=> setAdmin({...admin, name: e.target.youtube})}
+                    value={admin.data.youtube}
                   name="youtube"
                   
                     className="w-full border h-[35px] rounded-[5px] p-2 input"
@@ -78,7 +125,8 @@ function Profile() {
                   </span>
                   <input
                     type="text"
-                 
+                    onChange={(e)=> setAdmin({...admin, name: e.target.twitter})}
+                    value={admin.data.twitter}
                   name="twitter"
                   
                     className="w-full border h-[35px] rounded-[5px] p-2 input"
@@ -88,27 +136,28 @@ function Profile() {
               <div className="w-full my-[20px]">
                 <span className="block m-[15px_0]">Logo</span>
                 <div className="w-[50px] h-[50px] object-fill">
-                  <img src="" alt="Logo" className="w-full h-full" />
+                  <img src={ previews.logo || admin.data.logo} alt="Logo" className="w-full h-full" />
                 </div>
                 <input
                   type="file"
                   name="logo"
                   className="input border w-full m-[10px_0] category"
-                 
+                 onChange={handlePreview}
                 />
               </div>
               <div className="w-full my-[20px]">
                 <span className="block m-[15px_0]">Fav Icon</span>
                 <div className="w-[50px] h-[50px] object-fill">
                   <img
-                    src=""
-                    alt="Logo"
+                    src={ previews.favicon || admin.data.favicon}
+                    alt="favicon"
                     className="w-full h-full"
                   />
                 </div>
                 <input
                   type="file"
                   name="favicon"
+                  onChange={handlePreview}
                   className="input border w-full m-[10px_0] category"
                 />
               </div>
@@ -116,8 +165,8 @@ function Profile() {
                 <span className="block m-[15px_0]">Footer Logo</span>
                 <div className="w-[50px] h-[50px] object-fill">
                   <img
-                   src=""
-                    alt="Logo"
+                   src={previews.footer_icon || admin.data.footer_icon}
+                    alt="footer_icon"
                     className="w-full h-full"
                   />
                 </div>
@@ -125,7 +174,7 @@ function Profile() {
                   type="file"
                   name="footer_icon"
                   className="input border w-full m-[10px_0] category"
-                 
+                 onChange={handlePreview}
                 />
               </div>
               <div className="w-full my-[20px] relative ">
@@ -134,7 +183,8 @@ function Profile() {
                   type={show === false ? "password" : "text"}
                   
                   name="password"
-                  
+                  onChange={(e)=> setAdmin({...admin, password: e.target.password})}
+                   value={admin.data.password}
                   className="w-full border h-[35px] rounded-[5px] p-2 input"
                 />
                 <span
@@ -149,16 +199,7 @@ function Profile() {
               </button>
             </form>
           </div>
-          <div className="flex flex-col justify-center p-[10px] box-border items-center gap-[10px] h-[400px]">
-            <div className="border border-slate-300 w-[200px] h-[200px] rounded-[50%] object-contain">
-              <img
-                src="/profile.jpg"
-                alt="profile img"
-                className="w-full h-full rounded-[50%]"
-              />
-            </div>
-            <span className="block text-center">Profile Image</span>
-          </div>
+          
         </div>
       </div>
       <div className="mb-[80px] w-[90%] mx-auto border rounded-[10px]">

@@ -10,6 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/frankandoak-files', express.static('./src/files/product-category'));
+app.use('/frankandfiles/admin', express.static('./src/files/admin'));
 
 app.use('/api', masterRouter);
 

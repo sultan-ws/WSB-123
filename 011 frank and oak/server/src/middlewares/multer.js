@@ -14,6 +14,22 @@ const fileUploads = (filename)=> multer({ storage: storage(filename) }).fields([
     {
         name: 'thumbnail',
         maxCount: 1
+    },
+    {
+        name: 'profile',
+        maxCount: 1
+    },
+    {
+        name: 'logo',
+        maxCount: 1
+    },
+    {
+        name: 'favicon',
+        maxCount: 1
+    },
+    {
+        name: 'footer_icon',
+        maxCount: 1
     }
 ]);
 
