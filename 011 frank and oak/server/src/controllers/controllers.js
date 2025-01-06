@@ -27,7 +27,7 @@ const {
     readProductCategory,
     updateProductCategory,
 } = require("./admin-panel/productCategoryControllers");
-const { createAdmin, adminLogin } = require("./admin-panel/adminControllers");
+const { createAdmin, adminLogin, genrateOtp, updateEmail } = require("./admin-panel/adminControllers");
 
 module.exports = {
     createParentCategory,
@@ -47,5 +47,7 @@ module.exports = {
     readProductCategory,
     updateProductCategory,
     createAdmin,
-    adminLogin
+    adminLogin,
+    genrateOtp,
+    updateEmail
 };

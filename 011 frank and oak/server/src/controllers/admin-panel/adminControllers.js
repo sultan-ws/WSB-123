@@ -1,5 +1,8 @@
 const Admin = require("../../models/admin");
 const fs = require('fs');
+const nodemailer = require('nodemailer');
+
+const otpData = new Map();
 
 const createAdmin = async()=>{
     try{
@@ -91,8 +94,74 @@ const updateAdmin = async (req, res) => {
     }
 }
 
+const genrateOtp = async (req, res) => {
+    try{
+        const ifAdmin = await Admin.find();
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth:{
+                user: process.env.EMAIL,
+                pass: process.env.APP_PASSWORD
+            }
+        });
+
+        const otp = Math.floor(Math.random() * 999999);
+
+        otpData.set(ifAdmin[0].email, otp);
+
+        const options = {
+            from: process.env.EMAIL,
+            to: ifAdmin[0].email,
+            subject: 'OTP',
+            text: `Your OTP is ${otp}`
+        }
+
+        transporter.sendMail(options, (error, success)=>{
+            if(error) console.log(error);
+            res.status(200).json({message:'success'});
+        })
+        
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({message:'internal server error'});
+    }
+};
+
+const updateEmail = async (req, res) => {
+    try{
+        const { otp, email, newemail } = req.body;
+
+        
+        const sentOtp = otpData.get(email);
+
+        console.log(otp, email, newemail, sentOtp, req.params);
+
+        if(!otp) return res.status(400).json({message: 'please send otp'});
+        if( otp != sentOtp) return res.status(401).json({message: 'invalid otp'});
+
+        const response = await Admin.updateOne(
+            req.params,
+            {
+                $set:{
+                    email: newemail
+                }
+            }
+        );
+
+        res.status(200).json({message:'success', data: response});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({message: 'internal server error'});
+    }
+} 
+
 module.exports = {
     createAdmin,
     adminLogin,
-    updateAdmin
+    updateAdmin,
+    genrateOtp,
+    updateEmail
 }

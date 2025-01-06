@@ -19,6 +19,7 @@
     "react-modal": "^3.16.3",
     "react-router-dom": "^6.25.1",
     "react-scripts": "5.0.1",
+    "react-spinners": "^0.15.0",
     "react-tooltip": "^5.28.0",
     "sweetalert2": "^11.15.2",
     "web-vitals": "^2.1.4"
