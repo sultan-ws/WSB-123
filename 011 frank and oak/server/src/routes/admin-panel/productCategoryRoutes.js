@@ -4,7 +4,8 @@ const {
     createProductCategory, 
     readProductCategories,
     readProductCategory,
-    updateProductCategory
+    updateProductCategory,
+    productCategoryByParentCategory
 } = require('../../controllers/controllers');
 
 
@@ -15,5 +16,6 @@ productCategoryRouter.post('/create-category', createProductCategory);
 productCategoryRouter.get('/read-categories', readProductCategories);
 productCategoryRouter.get('/read-category/:_id', readProductCategory);
 productCategoryRouter.put('/update-category/:_id', updateProductCategory);
+productCategoryRouter.get('/categories-by-parent/:id', productCategoryByParentCategory)
 
 module.exports = productCategoryRouter;

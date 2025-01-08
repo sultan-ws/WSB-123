@@ -1,20 +1,27 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import Select from 'react-select';
 
 const AddProduct = () => {
-  const [previews, setPreviews] = useState({gallery:[]});
+  const [previews, setPreviews] = useState({ gallery: [] });
   const [parentCategories, setParentCategories] = useState([]);
+  const [productCategories, setProductCategories] = useState([]);
+  const [sizes, setSizes] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState(null);
+  const [selectedColors, setSelectedColors] = useState(null);
 
-  const handlePreview = (e)=>{
+  const handlePreview = (e) => {
     const { name, files } = e.target;
 
-    if(name === 'gallery'){
-      setPreviews({...previews, gallery: Array.from(files).map((file)=> URL.createObjectURL(file))});
+    if (name === 'gallery') {
+      setPreviews({ ...previews, gallery: Array.from(files).map((file) => URL.createObjectURL(file)) });
 
       return;
     }
 
-    setPreviews({...previews, [name]: URL.createObjectURL(files[0])});
+    setPreviews({ ...previews, [name]: URL.createObjectURL(files[0]) });
   };
 
   const readParentCategories = () => {
@@ -28,10 +35,59 @@ const AddProduct = () => {
       });
   };
 
-  useEffect(()=>{
-    readParentCategories();
-  },[]);
+  const fetchSizes = () => {
+    axios.get(`${process.env.REACT_APP_API_URL}sizes/read-sizes`)
+      .then((response) => {
+        const newData = response.data.data.map((size) => ({ ...size, label: size.name, value: size._id }));
+        setSizes(newData);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+  };
 
+  const fetchColors = () => {
+    axios.get(`${process.env.REACT_APP_API_URL}colors/read-colors`)
+      .then((response) => {
+        const newData = response.data.data.map((color) => ({ ...color, label: color.name, value: color._id }));
+        setColors(newData);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+  };
+
+  useEffect(() => {
+    readParentCategories();
+    fetchSizes();
+    fetchColors();
+  }, []);
+
+
+  const handleFetchProductCategories = (e) => {
+    if (e.target.value === 'default') return Swal.fire("Please select parent category!");
+
+    axios.get(`${process.env.REACT_APP_API_URL}product-category/categories-by-parent/${e.target.value}`)
+      .then((response) => {
+        console.log(response.data);
+        setProductCategories(response.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+  };
+
+  const handleAddProduct = (e) => {
+    e.preventDefault();
+
+    axios.post(`${process.env.REACT_APP_API_URL}products/insert-product`, e.target)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+  }
 
   return (
     <div className="w-[90%] mx-auto my-[150px] bg-white rounded-[10px] border">
@@ -39,7 +95,7 @@ const AddProduct = () => {
         Product Details
       </span>
       <div className="w-[90%] mx-auto my-[20px]">
-        <form>
+        <form method="post" onSubmit={handleAddProduct}>
           <div className="w-full my-[10px]">
             <label htmlFor="product_name" className="block text-[#303640]">
               Product Name
@@ -130,9 +186,10 @@ const AddProduct = () => {
                 previews.gallery &&
                 previews.gallery.map((image, index) => (
                   <img
-                  key={index}
-                  src={image}
-                  className="w-[150px] my-[10px]"
+                    key={index}
+                    src={image}
+                    className="w-[150px] my-[10px]"
+                    alt=""
                   />
                 ))
               }
@@ -168,7 +225,7 @@ const AddProduct = () => {
             <label htmlFor="parent_category" className="block text-[#303640]">
               Select Parent Category
             </label>
-            <select name="parentCategory" id="" className="border w-full p-2 rounded-[5px] my-[10px] category input">
+            <select onChange={handleFetchProductCategories} name="parentCategory" id="" className="border w-full p-2 rounded-[5px] my-[10px] category input">
               <option value='default'> --- Select Parent Category --- </option>
               {
                 parentCategories.map((category, index) => (<option value={category._id} key={index}>{category.name}</option>))
@@ -185,15 +242,11 @@ const AddProduct = () => {
               name="productCategory"
               className="w-full input border p-2 rounded-[5px] my-[10px] cursor-pointer"
             >
-              <option value="default" selected disabled hidden>
-                --Select Product Category--
-              </option>
-              <option value="tShirt" className="cursor-pointer">
-                T-shirt
-              </option>
-              <option value="shirt" className="cursor-pointer">
-                Shirt
-              </option>
+              <option value='default'> --- Select Product Category --- </option>
+              {
+                productCategories.map((category, index) => (<option value={category._id} key={index}>{category.name}</option>))
+              }
+
             </select>
           </div>
           <div className="w-full grid grid-cols-[2fr_2fr] gap-[20px]">
@@ -228,41 +281,28 @@ const AddProduct = () => {
           </div>
           <div className="w-full grid grid-cols-[2fr_2fr] gap-[20px]">
             <div>
-              <label htmlFor="size" className="block text-[#303640]">
+              <label htmlFor="size" className="block text-[#303640] mb-4">
                 Size
               </label>
-              <select
+              <Select
                 name="sizes"
-                id="size"
-                className="p-2 input w-full border rounded-[5px] my-[10px]"
-              >
-                <option value="default" selected disabled hidden>
-                  --Select Size--
-                </option>
-                <option value="s">S</option>
-                <option value="m">M</option>
-                <option value="l">L</option>
-                <option value="xl">XL</option>
-                <option value="xxl">XXL</option>
-              </select>
+                defaultValue={selectedSizes}
+                onChange={setSelectedSizes}
+                options={sizes}
+                isMulti
+              />
             </div>
             <div>
-              <label htmlFor="color" className="block text-[#303640]">
+              <label htmlFor="color" className="block text-[#303640] mb-4">
                 Color
               </label>
-              <select
+              <Select
                 name="colors"
-                id="color"
-                className="p-2 input w-full border rounded-[5px] my-[10px]"
-              >
-                <option value="default" selected disabled hidden>
-                  --Select Color--
-                </option>
-                <option value="red">Red</option>
-                <option value="orange">Orange</option>
-                <option value="yellow">Yellow</option>
-                <option value="white">White</option>
-              </select>
+                defaultValue={selectedColors}
+                onChange={setSelectedColors}
+                options={colors}
+                isMulti
+              />
             </div>
           </div>
           <div className="w-full my-[10px] ">

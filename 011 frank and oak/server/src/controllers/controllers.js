@@ -17,7 +17,8 @@ const {
 
 // color
 const { 
-    createColor
+    createColor,
+    activeColors
  } = require("./admin-panel/colorControllers");
 
  // product category
@@ -26,8 +27,11 @@ const {
     readProductCategories,
     readProductCategory,
     updateProductCategory,
+    productCategoryByParentCategory,
 } = require("./admin-panel/productCategoryControllers");
 const { createAdmin, adminLogin, genrateOtp, updateEmail } = require("./admin-panel/adminControllers");
+const { readSizes, createSize } = require("./admin-panel/sizeControllers");
+const { createProduct } = require("./admin-panel/product");
 
 module.exports = {
     createParentCategory,
@@ -49,5 +53,10 @@ module.exports = {
     createAdmin,
     adminLogin,
     genrateOtp,
-    updateEmail
+    updateEmail,
+    activeColors,
+    createSize,
+    readSizes,
+    productCategoryByParentCategory,
+    createProduct
 };

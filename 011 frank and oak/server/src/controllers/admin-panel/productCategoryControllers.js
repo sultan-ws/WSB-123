@@ -21,7 +21,7 @@ const createProductCategory = async(req, res)=>{
 const readProductCategories = async ( req, res ) => {
     try{
         const data = await ProductCategory.find({ deletedAt: null}).populate('parentCategory');
-        const filepath = `${req.protocol}://${req.get('host')}/frankandoak-files/`
+        const filepath = `${req.protocol}://${req.get('host')}/frankandoak-files/`;
         res.status(200).json({message:'success', data, filepath});
     }
     catch(error){
@@ -69,9 +69,25 @@ const updateProductCategory = async (req, res) => {
     }
 }
 
+const productCategoryByParentCategory = async(req, res) => {
+    try{
+        const data = await ProductCategory.find({
+            parentCategory: req.params.id,
+            deletedAt:null,
+            status:true
+        });
+        res.status(200).json({message:'success', data});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({message:'internal server error'});
+    }
+}
+
 module.exports = {
     createProductCategory,
     readProductCategories,
     readProductCategory,
-    updateProductCategory
+    updateProductCategory,
+    productCategoryByParentCategory
 }
